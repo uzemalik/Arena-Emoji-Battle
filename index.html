@@ -1,0 +1,77 @@
+import React from 'react';
+import { MainMenu } from './components/MainMenu';
+import { CharacterSelect } from './components/CharacterSelect';
+import { BattleArena } from './components/BattleArena';
+import { GameResults } from './components/GameResults';
+import { Leaderboard } from './components/Leaderboard';
+import { useGameState } from './hooks/useGameState';
+
+function App() {
+  const {
+    gameState,
+    startGame,
+    selectCharacter,
+    endBattle,
+    returnToMenu,
+    showLeaderboard,
+    playAgain
+  } = useGameState();
+
+  const renderCurrentPhase = () => {
+    switch (gameState.phase) {
+      case 'menu':
+        return (
+          <MainMenu
+            onStartGame={startGame}
+            onShowLeaderboard={showLeaderboard}
+          />
+        );
+
+      case 'selection':
+        return (
+          <CharacterSelect
+            onSelect={selectCharacter}
+            selectedCharacters={gameState.players.map(p => p.character || null)}
+            currentPlayer={gameState.currentPlayer}
+          />
+        );
+
+      case 'battle':
+        return (
+          <BattleArena
+            players={gameState.players}
+            onBattleEnd={endBattle}
+            onReturnToMenu={returnToMenu}
+          />
+        );
+
+      case 'results':
+        return gameState.winner ? (
+          <GameResults
+            winner={gameState.winner}
+            players={gameState.players}
+            onPlayAgain={playAgain}
+            onReturnToMenu={returnToMenu}
+          />
+        ) : null;
+
+      case 'leaderboard':
+        return (
+          <Leaderboard
+            onReturn={returnToMenu}
+          />
+        );
+
+      default:
+        return <MainMenu onStartGame={startGame} onShowLeaderboard={showLeaderboard} />;
+    }
+  };
+
+  return (
+    <div className="font-sans">
+      {renderCurrentPhase()}
+    </div>
+  );
+}
+
+export default App;
